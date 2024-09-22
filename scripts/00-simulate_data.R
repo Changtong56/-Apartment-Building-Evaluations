@@ -1,31 +1,13 @@
 #### Preamble ####
-# Purpose: Simulates... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 11 February 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Find and Simulates data
+# Author: Chang Tong
+# Date: 22 September 2024
+# Contact: tongchang0506@gmail.com
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites: None
+# Any other information needed? None
 
 
-
-
-
-#### Workspace setup ####
-library(tidyverse)
-library(opendatatoronto)
-
-###find a specific package
-packages <- list_packages(200)
-Building_Evaluation <- search_packages("Apartment Building Evaluation")
-
-Building_Evaluation_resources <- Building_Evaluation %>%
-  list_package_resources()
-
-resource_selected <- Building_Evaluation_resources %>%
-  filter(row_number() == 1)
-
-Building_Evaluation_statistics <- get_resource(resource_selected)
 
 #### Simulate data ####
 set.seed(304)
