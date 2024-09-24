@@ -134,6 +134,7 @@ Based on my analysis, it is evident that the age of a building significantly imp
 Figure 3 delves deeper into the relationship between building age and evaluation scores, revealing a clear downward trend as buildings get older. Scores start high for newer buildings but begin to drop steadily after about 30 years. This decline indicates that older buildings face challenges such as aging infrastructure and potentially inadequate maintenance, which contribute to lower compliance with building standards. Interestingly, the graph also shows a slight recovery in scores after the 150-year mark, likely reflecting restoration and preservation efforts for historically significant buildings.
 
 Overall, these findings emphasize that building age plays a crucial role in compliance with standards. Targeted interventions and resource allocation, particularly for mid-aged buildings around the 50-year mark, could help improve compliance and extend the lifespan of these structures. 
+
 # Improvemrnt
 To improve the analysis, several data-related enhancements could be considered. One significant improvement would be to compare evaluation scores across different property types separately, rather than aggregating them. This would help identify specific challenges and maintenance needs unique to each property type. For instance, comparing Private, Social Housing, and TCHC properties in terms of how their scores change with building age could reveal whether certain types of properties are more resilient to aging or require more frequent maintenance.
 
