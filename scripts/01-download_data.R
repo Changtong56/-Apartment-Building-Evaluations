@@ -13,7 +13,7 @@ library(opendatatoronto)
 library(tidyverse)
 
 ###find a specific package
-packages <- list_packages(200)
+packages <- list_packages(100)
 Building_Evaluation <- search_packages("Apartment Building Evaluation")
 
 Building_Evaluation_resources <- Building_Evaluation %>%
@@ -22,9 +22,9 @@ Building_Evaluation_resources <- Building_Evaluation %>%
 resource_selected <- Building_Evaluation_resources %>%
   filter(row_number() == 1)
 
-Building_Evaluation_statistics <- get_resource(resource_selected)
+data <- get_resource(resource_selected)
 
 
 #### Save data ####
-write_csv(data, "data/raw_data/raw_data.csv") 
+write.csv(data, "data/raw_data/raw_data.csv")
          

@@ -8,6 +8,9 @@
 # Any other information needed? None
 
 
+#### Workspace setup ####
+library(tidyverse)
+library(readr)
 
 #### Simulate data ####
 set.seed(304)
@@ -17,9 +20,9 @@ start_date <- as.Date("2018-01-01")
 end_date <- as.Date("2023-12-31")
 
 
-number_of_buildings <- 200
+number_of_buildings <- 100
 
-data <-
+building_data <-
   tibble(
     dates = as.Date(
       runif(
@@ -29,19 +32,15 @@ data <-
       ),
       origin = "1970-01-01"
     ),
-    total_score = sample(1:3, number_of_buildings, replace = TRUE),  
-    # Random scores from 1 to 3
-    property_type = sample(c("Private", "TCHC"), number_of_buildings, replace = TRUE),  
-    # Random property type
-    year_built = sample(1950:2020, number_of_buildings, replace = TRUE),  
-    # Random year of construction
-    number_of_storeys = sample(3:30, number_of_buildings, replace = TRUE)  
-    # Random number of storeys
+    total_score = sample(1:100, number_of_buildings, replace = TRUE),  
+    property_type = sample(c("Private", "TCHC", "Social Housing"), number_of_buildings, replace = TRUE),  
+    year_built = sample(1950:2024, number_of_buildings, replace = TRUE),  
+    year_evaluated = sample(1950:2024, number_of_buildings, replace = TRUE),
+    building_age = year_evaluated - year_built
   )
 
 
 #### Write_csv
-write_csv(data, file = "data/raw_data/simulated_building_data.csv")
 
-
+write_csv(building_data, file = "data/raw_data/simulated_building_data.csv")
 

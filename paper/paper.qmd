@@ -1,15 +1,15 @@
 ---
-title: "My title"
-subtitle: "My subtitle if needed"
+title: "Age Matters: Does Older Mean Lower Compliance in Building Standards?"
 author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: LINK."
+  - Chang Tong
+thanks: "Code and data are available at: https://github.com/Changtong56/-Apartment-Building-Evaluations.git"
 date: today
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
-format: pdf
-number-sections: true
+abstract: "This paper examines the relationship between building age and compliance with building standards in Toronto, focusing on whether older buildings are more likely to have lower evaluation scores. Using data from the open toronto, we analyzed over 3,000 buildings of varying property types, including Private, Social Housing, and TCHC properties. Our findings indicate that as buildings age, their compliance scores generally decline, particularly around the 50-year mark, which appears to be a critical period for maintenance and renovation needs. Social Housing properties demonstrate the highest average scores, suggesting better management and upkeep compared to other property types. Interestingly, very old buildings, those over 150 years, show a slight recovery in scores, likely due to restoration efforts for historically significant structures. These results highlight the importance of targeted interventions and resource allocation to maintain building standards as properties age, ensuring safe and livable conditions for residents. "
+format:
+  pdf:
+    number-sections: true
+    citation-package: biblatex
 bibliography: references.bib
 ---
 
@@ -18,204 +18,158 @@ bibliography: references.bib
 #| warning: false
 #| message: false
 
+library(knitr)
 library(tidyverse)
-library(palmerpenguins)
-```
 
+data <- read_csv(here::here("data/analysis_data/analysis_data.csv"))
+```
 
 # Introduction
 
-You can and should cross-reference sections and sub-sections. We use @citeR and @rohan.
+Toronto is a diverse city that offers a wide range of housing options for individuals and families. From historic Victorian homes to modern and contemporary condominiums, there is a housing type to suit each homeowner's unique needs and preferences. (Marin 2024)
 
-The remainder of this paper is structured as follows. @sec-data....
+Ensuring that these buildings meet contemporary property standards is essential for the safety and quality of life of residents. However, as buildings age, they may encounter increased maintenance issues, structural deterioration, and regulatory non-compliance. This situation is particularly concerning for older buildings, which may struggle to adhere to evolving safety and accessibility standards due to outdated infrastructure and design (Building Radar 2024).Understanding these dynamics is crucial for policymakers and property managers to allocate resources effectively and ensure that all residents, regardless of the age of their buildings, can live in safe and well maintained environments.
 
-
+Our analysis covers RentSafeTO data and focuses on identifying patterns in compliance scores across building age groups.(City of Toronto) We use statistical methods to explore whether older buildings always score lower. Various packages were also used in the processing, cleaning, and presentation of this information such as tidyverse (Wickham et al. 2019), here (Müller 2020), knitr (Xie 2023a), tinytex (Xie 2023b), dplyr (Wickham et al. 2023), and janitor (Firke 2023).Section 2 describes the dataset and outlines the analysis methodology. Section 3 presents the results of the analysis, including a discussion of the key trends and patterns observed in the data. Section 4 presents the parts of this study that need improvement. 
 
 # Data {#sec-data}
 
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
+The dataset used in this analysis is from the City of Toronto's Open Data Portal and is part of the RentSafeTO program established in 2017. The program requires owners and operators of apartment buildings with three or more floors or 10 or more units to comply with building maintenance standards. The program was introduced to ensure that rental housing in Toronto is safe and well-maintained for tenants.(City of Toronto)
+
+The dataset includes assessment scores for buildings registered with RentSafeTO. The assessment of a building's compliance with property standards is calculated by adding the passive score (applicable orders or violation notices) to the active score (the most recent building assessment score). The score ranges from zero to 100. Higher scores indicate that the building is becoming more compliant.(City of Toronto) The dataset includes 3383 variables in 6 different catagr,
 
 ```{r}
-#| label: fig-bills
-#| fig-cap: Bills of penguins
-#| echo: false
-
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = "none") +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
-```
-
-Talk more about it.
-
-And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
-
-```{r}
-#| label: fig-planes
-#| fig-cap: Relationship between wing length and width
 #| echo: false
 #| warning: false
 #| message: false
 
 analysis_data <- read_csv(here::here("data/analysis_data/analysis_data.csv"))
 
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
-  theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
+summary_table <- analysis_data %>%
+  group_by(property_type) %>%
+  summarise(
+    Total_Buildings = n(),
+    Avg_Total_Score = mean(current_building_eval_score, na.rm = TRUE),
+    Min_Score = min(current_building_eval_score, na.rm = TRUE),
+    Max_Score = max(current_building_eval_score, na.rm = TRUE),
+  )
+knitr::kable(head(summary_table),caption="Table 1: Summary of Building Evaluation Scores by Property Type")
 ```
 
-Talk way more about it. 
+Table 1 summarizes the total number of buildings and their evaluation scores by property type in Toronto. Among the three property types, Private properties have the highest number of buildings with 2849, an average total score of 87.20, and a score range from 17 to 100. Social Housing properties have 223 buildings with an average score of 88.83, ranging from 46 to 100. TCHC properties include 311 buildings, with an average score of 86.60 and a range from 26 to 98.
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
 
 
+ggplot(analysis_data, aes(x = property_type, y = current_building_eval_score, fill = property_type)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Figure 1. Total Score by Property Type",
+       x = "Property Type",
+       y = "Total Evaluation Score")
+```
 
-# Model
+Figure 1 visualizes the total evaluation scores of different property types in Toronto, including Private, Social Housing, and Toronto Community Housing Corporation (TCHC).
 
-The goal of our modelling strategy is twofold. Firstly,...
+Private Properties (Red): Scores are mostly concentrated between 85 and 100. There are some outliers below 50, indicating a few properties with significantly lower scores. Social Housing (Green): Scores are tightly clustered between 85 and 100, with a median around 95, which is the highest among the three property types. There are few outliers. TCHC (blue): Scores are between 75 and 100, and although slightly lower, the overall distribution is more concentrated, with fewer outliers, but the distribution is not very spread out.
 
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
+Overall, Social Housing properties demonstrate the highest and most stable evaluation scores, while TCHC properties show a slightly broader distribution but remain generally concentrated around a high score range. Private properties exhibit a few more low-scoring, but the majority of scores remain high.
 
-## Model set-up
-
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
-
-\begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
-\end{align}
-
-We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
 
 
-### Model justification
+ggplot(analysis_data, aes(x = building_age)) +
+  geom_bar(fill = "blue") +
+  theme_minimal() +
+  labs(title = "Figure 2:Distribution of Building Evaluation Scores by Property Type",
+       x = "Building Age Category",
+       y = "Number of Buildings")
+```
+Figure 2 displays the distribution of building evaluation scores by property type, plotted against the building age category. The X-axis represents the "Building Age Category," while the Y-axis indicates the "Number of Buildings."
 
-We expect a positive relationship between the size of the wings and time spent aloft. In particular...
+As the building age category increases beyond 75 years, the number of buildings sharply declines. Very few buildings fall into the 100 to 150 years range, and virtually no buildings are found in the 150+ years category. This may reflect fewer older buildings being part of the dataset or a lower survival rate of such buildings.
 
-We can use maths by including latex between dollar signs, for instance $\theta$.
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
 
+age_table <- analysis_data %>%
+  group_by(building_age) %>%
+  summarise(
+    Avg_Score = mean(current_building_eval_score, na.rm = TRUE),
+    Total_Buildings = n()
+  )
+
+ggplot(age_table, aes(x = building_age, y = Avg_Score, fill = building_age)) +
+  geom_line(color = "steelblue", size = 1) +  
+  geom_point(color = "steelblue", size = 3) +
+  theme_minimal() +
+  labs(title = "Figure 3: Average Building Evaluation Scores by Age",
+       x = "Building Age Category",
+       y = "Average Score") +
+  theme(legend.position = "none")
+```
+Figure 3 shows the average building evaluation scores plotted against the building age category. The X-axis represents the "Building Age Category," while the Y-axis indicates the "Average Score" for buildings within each category. 
+
+There is a noticeable downward trend in average evaluation scores as building age increases from 0 to around 100 years. Between the ages of 50 and 100 years, the average scores tend to stabilize around the 80 to 90 range. Despite some fluctuation, the overall trend shows less dramatic decreases in scores compared to earlier ages. A significant drop in scores occurs around the 100 to 150-year mark, where average scores dip below 80, and the variability increases dramatically. After this sharp decline, there is an upward recovery trend around the 150-year mark, where scores rise again. 
 
 # Results
-
-Our results are summarized in @tbl-modelresults.
-
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-
-library(rstanarm)
-
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
-```
-
-```{r}
-#| echo: false
-#| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
-#| warning: false
-
-modelsummary::modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  statistic = "mad",
-  fmt = 2
-)
-```
-
-
-
+According to the figure 3, Newer Buildings (<50 years old):
+Generally maintain high average scores, often above 90. This is likely due to better construction standards, newer materials, and more effective maintenance practices.
+Middle-aged Buildings (50-100 years old):
+Scores stabilize, reflecting a balance between aging infrastructure and potential renovations or maintenance efforts. This age group represents a critical period where building upkeep is necessary to prevent further decline.
+Very Old Buildings (>100 years old):
+These buildings show highly variable scores, indicating a diverse range of conditions. Some may have been well-preserved due to historical significance, while others may have experienced substantial degradation.
 
 # Discussion
+Based on my analysis, it is evident that the age of a building significantly impacts its evaluation scores. Figure 2 shows that the majority of buildings fall within the 30 to 60-year age range, with a sharp peak around the 50-year mark. This suggests that many buildings in Toronto were constructed during a particular period, and as these buildings age, they approach a critical point in their lifecycle, necessitating regular maintenance and evaluation to maintain compliance with standards.
 
-## First discussion point {#sec-first-point}
+Figure 3 delves deeper into the relationship between building age and evaluation scores, revealing a clear downward trend as buildings get older. Scores start high for newer buildings but begin to drop steadily after about 30 years. This decline indicates that older buildings face challenges such as aging infrastructure and potentially inadequate maintenance, which contribute to lower compliance with building standards. Interestingly, the graph also shows a slight recovery in scores after the 150-year mark, likely reflecting restoration and preservation efforts for historically significant buildings.
 
-If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
+Overall, these findings emphasize that building age plays a crucial role in compliance with standards. Targeted interventions and resource allocation, particularly for mid-aged buildings around the 50-year mark, could help improve compliance and extend the lifespan of these structures. 
+# Improvemrnt
+To improve the analysis, several data-related enhancements could be considered. One significant improvement would be to compare evaluation scores across different property types separately, rather than aggregating them. This would help identify specific challenges and maintenance needs unique to each property type. For instance, comparing Private, Social Housing, and TCHC properties in terms of how their scores change with building age could reveal whether certain types of properties are more resilient to aging or require more frequent maintenance.
 
-## Second discussion point
-
-## Third discussion point
-
-## Weaknesses and next steps
-
-Weaknesses and next steps should also be included.
-
-\newpage
-
-\appendix
-
-# Appendix {-}
-
-
-# Additional data details
-
-# Model details {#sec-model-details}
-
-## Posterior predictive check
-
-In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
-
-In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
-
-```{r}
-#| eval: true
-#| echo: false
-#| message: false
-#| warning: false
-#| label: fig-ppcheckandposteriorvsprior
-#| layout-ncol: 2
-#| fig-cap: "Examining how the model fits, and is affected by, the data"
-#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
-
-pp_check(first_model) +
-  theme_classic() +
-  theme(legend.position = "bottom")
-
-posterior_vs_prior(first_model) +
-  theme_minimal() +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom") +
-  coord_flip()
-```
-
-## Diagnostics
-
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
-
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
-
-```{r}
-#| echo: false
-#| eval: true
-#| message: false
-#| warning: false
-#| label: fig-stanareyouokay
-#| fig-cap: "Checking the convergence of the MCMC algorithm"
-#| fig-subcap: ["Trace plot", "Rhat plot"]
-#| layout-ncol: 2
-
-plot(first_model, "trace")
-
-plot(first_model, "rhat")
-```
-
-
+In summary, refining the analysis by comparing scores across property types, building characteristics, and evaluation frequency, along with incorporating a temporal dimension, would provide a more comprehensive understanding of how building age impacts compliance with standards.
 
 \newpage
 
 
 # References
+\begin{thebibliography}{99}
+
+\bibitem{opendatatorotno} Sharla Gelfand. (2022). opendatatoronto: Access the City of Toronto Open Data Portal. R package version 0.1.5. URL: \url{https://CRAN.R-project.org/package=opendatatoronto}.
+
+\bibitem{talia} R Core Team. (2023). R: A Language and Environment for Statistical Computing. R Foundation for Statistical Computing, Vienna, Austria. URL: \url{https://www.R-project.org/}.
+
+\bibitem{thereferencecanbewhatever} Hadley Wickham, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D'Agostino McGowan, Romain François, Garrett Grolemund, Alex Hayes, Lionel Henry, Jim Hester, Max Kuhn, Thomas Lin Pedersen, Evan Miller, Stephan Milton Bache, Kirill Müller, Jeroen Ooms, David Robinson, Dana Paige Seidel, Vitalie Spinu, Kohske Takahashi, Davis Vaughan, Claus Wilke, Kara Woo, and Hiroaki Yutani. (2019). Welcome to the {tidyverse}. Journal of Open Source Software, 4(43), 1686. DOI: \url{10.21105/joss.01686}.
+
+\bibitem{citeLahman} Michael Friendly, Chris Dalzell, Martin Monkman, and Dennis Murphy. (2020). Lahman: Sean Lahman Baseball Database. R package version 8.0-0. URL: \url{https://CRAN.R-project.org/package=Lahman}.
+
+\bibitem{gebru2021datasheets} Timnit Gebru, Jamie Morgenstern, Briana Vecchione, Jennifer Wortman Vaughan, Hanna Wallach, Hal Daumé III, and Kate Crawford. (2021). Datasheets for datasets. Communications of the ACM, 64(12), 86--92. Publisher: ACM New York, NY, USA.
+
+\bibitem{rstanarm} Ben Goodrich, Jonah Gabry, Imad Ali, and Sam Brilleman. (2022). rstanarm: Bayesian applied regression modeling via Stan. R package version 2.21.3. URL: \url{https://mc-stan.org/rstanarm/}.
+
+\bibitem{foxmarin_toronto_home_types} Fox Marin Team. Comprehensive Guide to Toronto Home Types. URL: \url{https://foxmarin.ca/comprehensive-guide-to-toronto-home-types/}. Accessed: 2024-09-23.
+
+\bibitem{buildingradar_construction_changes} Building Radar. Regulatory Changes Impacting Construction: Navigating New Rules and Compliance. URL: \url{https://buildingradar.com/construction-blog/regulatory-changes-impacting-construction-navigating-new-rules-and-compliance/}. Accessed: 2024-09-23.
+
+\bibitem{citytoronto_rentsafeto} City of Toronto. RentSafeTO: Evaluation Tool. URL: \url{https://www.toronto.ca/community-people/housing-shelter/rental-housing-tenant-information/rental-housing-standards/apartment-building-standards/rentsafeto-evaluation-tool/}. Accessed: 2024-09-23.
+
+\bibitem{wickham2016ggplot2} Hadley Wickham. (2016). Ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York. URL: \url{https://ggplot2.tidyverse.org}.
+
+\bibitem{wickham2023dplyr} Hadley Wickham, Romain François, Lionel Henry, Kirill M{\"u}ller, and Davis Vaughan. (2023). Dplyr: A Grammar of Data Manipulation. URL: \url{https://CRAN.R-project.org/package=dplyr}.
+
+\bibitem{wickham2023readr} Hadley Wickham, Jim Hester, and Jennifer Bryan. (2023). Readr: Read Rectangular Text Data. URL: \url{https://CRAN.R-project.org/package=readr}.
+
+\bibitem{xie2023knitr} Yihui Xie. (2023). Knitr: A General-Purpose Package for Dynamic Report Generation in R. URL: \url{https://yihui.org/knitr/}.
 
 
+\end{thebibliography}
